@@ -50,12 +50,25 @@ def get_cord(file):
     return file_obj
 
 
-path = r'C:\Users\sorou\Documents\PlateRecognition\PlateDataset\train'
+def Create_TXT_File(file_obj):
+    New_Name = file.split('.')[0] + '.txt'
+
+    New_File = open(os.path.join(path, New_Name), 'x')
+
+    for Obj in file_obj:
+        text = str(Obj['Type']) + ' ' + str(Obj['center']['x']) + ' ' + str(Obj['center']['y']) + ' ' + str(
+            Obj['width']) + ' ' + str(Obj['height']) + '\n'
+        New_File.write(text)
+
+#Main
+
+# Path to annotation folder
+path = r'C:\Users\sorou\Documents\PlateRecognition\PlateDataset\test'
 
 files = os.listdir(path)
-
 
 for file in files:
     if ".xml" in file:
         file_obj = get_cord(file)
-        print(file_obj)
+        Create_TXT_File(file_obj)
+
