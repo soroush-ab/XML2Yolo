@@ -2,55 +2,60 @@ import os
 import xml.etree.ElementTree as ET
 
 Type_List = []
+RoundDesimal = 4
 
-class Object:
-    def __int__(self, name, type, center, height, width):
-        self.name = name
-        self.type = type
-        self.center = center
-        self.heightt = height
-        self.width = width
+def Convert_2_Normalized(bndbox, img_width, img_height):
+    output = {}
 
-def get_Cord(bndbox, img_width, img_height):
-    xmin = bndbox.find('xmin').text / img_width
-    ymin = bndbox.find('ymin').text / img_height
-    xmax = bndbox.find('xmax').text / img_width
-    ymax = bndbox.find('ymax').text / img_height
+    xmin = int(bndbox.find('xmin').text) / img_width
+    ymin = int(bndbox.find('ymin').text) / img_height
+    xmax = int(bndbox.find('xmax').text) / img_width
+    ymax = int(bndbox.find('ymax').text) / img_height
 
-    center = {"x" : (xmax + xmin) / 2 , "y" : (ymax + ymin) / 2}
-    height = abs(ymax - center['y'])
-    width = abs(xmax - center['x'])
+    center = {"x" : round((xmax + xmin) / 2, RoundDesimal) , "y" :round ((ymax + ymin) / 2, RoundDesimal)}
+    height = round(abs(ymax - center['y']), RoundDesimal)
+    width = round(abs(xmax - center['x']), RoundDesimal)
 
-    return center, height, width
+    output['center'] = center
+    output['height'] = height
+    output['width'] = width
+
+    return output
+
+def get_cord(file):
+
+    file_obj = []
+
+    tree = ET.parse(os.path.join(path, file))
+    root = tree.getroot()
+
+    size = root.find('size')
+    width = int(size.find('width').text)
+    height = int(size.find('height').text)
+
+    for res in root.findall('object'):
+        name = res.find('name')
+
+        if not name.text in Type_List:
+            Type_List.append(name.text)
+
+        bndbox = res.find('bndbox')
+
+        Normalized = Convert_2_Normalized(bndbox, width, height)
+        Normalized['name'] = file
+        Normalized['Type'] = Type_List.index(name.text)
+
+        file_obj.append(Normalized)
+
+    return file_obj
 
 
-path = r'C:\Users\sorou\Documents\PlateRecognition\PlateRecognitionModel\PlateDataset\test'
+path = r'C:\Users\sorou\Documents\PlateRecognition\PlateDataset\train'
 
 files = os.listdir(path)
 
 
 for file in files:
     if ".xml" in file:
-
-        file_obj = []
-
-        tree = ET.parse(os.path.join(path,file))
-        root = tree.getroot()
-
-        size = root.find('size')
-        width = size.find('width').text
-        height = size.find('height').text
-
-        for res in root.findall('object'):
-            name = res.find('name')
-
-            if not name.text in Type_List:
-                Type_List.append(name.text)
-
-            bndbox = name.find('bndbox')
-
-            O_center, O_height, O_width = get_Cord(bndbox, width, height)
-
-
-
-print(files)
+        file_obj = get_cord(file)
+        print(file_obj)
