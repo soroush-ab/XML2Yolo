@@ -1,6 +1,5 @@
 import os
 import xml.etree.ElementTree as ET
-import argparse as ag
 
 Type_List = []
 RoundDesimal = 4
