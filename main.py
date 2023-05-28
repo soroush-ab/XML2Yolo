@@ -1,5 +1,6 @@
 import os
 import xml.etree.ElementTree as ET
+import argparse as ag
 
 Type_List = []
 RoundDesimal = 4
@@ -13,8 +14,8 @@ def Convert_2_Normalized(bndbox, img_width, img_height):
     ymax = int(bndbox.find('ymax').text) / img_height
 
     center = {"x" : round((xmax + xmin) / 2, RoundDesimal) , "y" :round ((ymax + ymin) / 2, RoundDesimal)}
-    height = round(abs(ymax - center['y']), RoundDesimal)
-    width = round(abs(xmax - center['x']), RoundDesimal)
+    height = round(abs(ymax - ymin), RoundDesimal)
+    width = round(abs(xmax - xmin), RoundDesimal)
 
     output['center'] = center
     output['height'] = height
@@ -53,7 +54,7 @@ def get_cord(file):
 def Create_TXT_File(file_obj):
     New_Name = file.split('.')[0] + '.txt'
 
-    New_File = open(os.path.join(path, New_Name), 'x')
+    New_File = open(os.path.join(path, New_Name), 'w')
 
     for Obj in file_obj:
         text = str(Obj['Type']) + ' ' + str(Obj['center']['x']) + ' ' + str(Obj['center']['y']) + ' ' + str(
@@ -63,7 +64,7 @@ def Create_TXT_File(file_obj):
 #Main
 
 # Path to annotation folder
-path = r'C:\Users\sorou\Documents\PlateRecognition\PlateDataset\test'
+path = r'C:\Users\sorou\Documents\PlateRecognition\Plate_Recognition\PlateDataset\test'
 
 files = os.listdir(path)
 
